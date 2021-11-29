@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "debitmetre.app"
-               BlueprintName = "debitmetre"
-               ReferencedContainer = "container:debitmetre.xcodeproj">
+               BuildableName = "vide.app"
+               BlueprintName = "vide"
+               ReferencedContainer = "container:vide.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "debitmetreTests.xctest"
-               BlueprintName = "debitmetreTests"
-               ReferencedContainer = "container:debitmetre.xcodeproj">
+               BuildableName = "videTests.xctest"
+               BlueprintName = "videTests"
+               ReferencedContainer = "container:vide.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "debitmetre.app"
-            BlueprintName = "debitmetre"
-            ReferencedContainer = "container:debitmetre.xcodeproj">
+            BuildableName = "vide.app"
+            BlueprintName = "vide"
+            ReferencedContainer = "container:vide.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "debitmetre.app"
-            BlueprintName = "debitmetre"
-            ReferencedContainer = "container:debitmetre.xcodeproj">
+            BuildableName = "vide.app"
+            BlueprintName = "vide"
+            ReferencedContainer = "container:vide.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

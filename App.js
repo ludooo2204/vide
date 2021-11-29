@@ -33,55 +33,82 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 const App = () => {
   const [checked, toggleChecked] = useState(true);
   const [placeholder, setPlaceholder] = useState('Saisir tension');
-  const [value, setValue] = useState(1);
+  const [value, setValue] = useState(5);
   const [valueString, setValueString] = useState('');
   //   const [debit, setDebit] = useState(0);
   const [comment, setComment] = useState('');
   const [selectedIndexCapteur, setIndexCapteur] = useState(1);
   const [selectedIndexGaz, setIndexGaz] = useState(1);
   const [selectedIndexType, setIndexType] = useState(0);
-  const typeGaz = ['H2', 'Argon', 'Air'];
-  const coefTypeGaz = [1.01, 1.45, 1.00];
-  const type = ['L/min', 'kg/h'];
 
-  let dataDEB003_100 = [
-    [0.52, 9.8477],
-    [1.027, 19.5239],
-    [2.017, 38.1004],
-    [3.01, 57.545],
-    [4.027, 77.6608],
-    [4.907, 96.5019],
+  let PIRANI = [
+    [2.148, 1.3e-3, 24.5],
+    [2.643, 4.79e-3, 11.6],
+    [3.009, 1e-2, 10.2],
+    [3.963, 5.02e-2, 8.2],
+    [4.564, 9.98e-2, 7.2],
+    [5.751, 4.93e-1, 5.9],
+    [6.393, 9.87e-1, 5.9],
   ];
-  let dataDEB003_30 = [
-    [0.448, 3.0341],
-    [0.994, 6.3617],
-    [1.999, 12.0553],
-    [3.047, 17.797],
-    [4.073, 23.4518],
-    [4.969, 28.6705],
+  let WRG = [
+    [4.469, 7.84e-6, 21.6],
+    [4.891, 2.96e-5, 19],
+    [5.056, 6.46e-5, 18],
+    [5.113, 9.8e-5, 17.7],
+    [5.458, 3.17e-4, 16.6],
+    [5.705, 8.05e-4, 16.1],
+    [5.73, 9.85e-4, 16.1],
   ];
-  let dataDEB003_300 = [
-    [0.509, 26.95813],
-    [1.0057, 54.50487],
-    [1.998, 110.5131],
-    [2.9853, 172.3644],
-    [4.0273, 240.84813],
-    [4.9953, 303.55744],
+  let PiraniLog = [...PIRANI];
+  PIRANI.date = '08/11/2021';
+  PIRANI.NumRapport = 'FR214513507';
+  WRG.date = '08/11/2021';
+  WRG.NumRapport = 'FR214513505';
+
+  for (const iterator of PiraniLog) {
+    iterator[1] = Math.log10(iterator[1]);
+  }
+  let WrgLog = [...WRG];
+  for (const iterator of WrgLog) {
+    iterator[1] = Math.log10(iterator[1]);
+  }
+  const capteurs = ['Pirani', 'Wrg'];
+  const dataCapteurs = [PiraniLog, WrgLog];
+  let PiraniIncertitude = [];
+  for (const iterator of PIRANI) {
+    PiraniIncertitude.push([iterator[0], iterator[2]]);
+  }
+  let WrgIncertitude = [];
+  for (const iterator of WRG) {
+    WrgIncertitude.push([iterator[0], iterator[2]]);
+  }
+  const dataIncertitude = [PiraniIncertitude, WrgIncertitude];
+  const dataEtalonnage = [
+    [PIRANI.NumRapport, PIRANI.date],
+    [WRG.NumRapport, WRG.date],
   ];
-  const COEF_ARGON = 1.45;
-  const COEF_AIR = 1;
-  const COEF_H2 = 1.45;
-  const capteurs = ['DEB003-30', 'DEB003-100', 'DEB003-300'];
-  const dataCapteurs = [dataDEB003_30, dataDEB003_100,dataDEB003_300];
-  console.log("data",selectedIndexCapteur)
+  console.log('PiraniIncertitude');
+  console.log(PiraniIncertitude);
+  console.log('WrgLog');
+  console.log(WrgLog);
+  console.log('dataCapteurs[selectedIndexCapteur]');
+  console.log(dataCapteurs[selectedIndexCapteur]);
+
   const result = regression.polynomial(dataCapteurs[selectedIndexCapteur], {
     order: 4,
     precision: 12,
   });
-  // console.log(result);
-  // console.log(result.predict(0.52));
+  const resultIncertitude = regression.polynomial(
+    dataIncertitude[selectedIndexCapteur],
+    {
+      order: 4,
+      precision: 12,
+    },
+  );
+  console.log(result);
+  console.log(resultIncertitude);
+
   //   console.log(typeof(result.predict(0.52)[1]));
-  
 
   const updateIndexCapteur = index => {
     setIndexCapteur(index);
@@ -95,17 +122,15 @@ const App = () => {
     setIndexType(index);
   };
 
-  console.log("value");
+  console.log('value');
   console.log(value);
-  console.log(coefTypeGaz[selectedIndexGaz]);
-  const debit =
-    Math.round(result.predict(value)[1] *
-      coefTypeGaz[selectedIndexGaz] *
-      100) /
-    100;
+
+  const debit = result.predict(value)[1];
+  const debitIncertitude = resultIncertitude.predict(value)[1];
+
   //   const debit= result.predict(value)
-  console.log("debit = ",debit)
-  console.log("debit = ",result.predict(value)[1])
+  console.log('debit = ', debit);
+  console.log('debit = ', result.predict(value)[1]);
 
   const handleInput = input => {
     // setValue
@@ -132,37 +157,38 @@ const App = () => {
             buttons={capteurs}
             containerStyle={{height: 40}}
           />
-          <ButtonGroup
-            onPress={updateIndexGaz}
-            selectedIndex={selectedIndexGaz}
-            buttons={typeGaz}
-            containerStyle={{height: 40}}
-          />
-          <ButtonGroup
-            onPress={updateIndexType}
-            selectedIndex={selectedIndexType}
-            buttons={type}
-            containerStyle={{height: 40}}
-          />
+
           <Divider style={{backgroundColor: 'blue', marginVertical: 10}} />
           {/* <Text>TOTOO</Text> */}
         </View>
         <View style={{flex: 2, justifyContent: 'center', alignItems: 'center'}}>
           <Text
             style={{
+              fontSize: 20,
+              alignSelf: 'center',
+              marginBottom: 50,
+            }}>{`${dataEtalonnage[selectedIndexCapteur][0]} du ${dataEtalonnage[selectedIndexCapteur][1]}`}</Text>
+
+          <Text
+            style={{
               fontSize: 50,
               alignSelf: 'auto',
               //   marginTop:20
-            }}>{`${Math.round(debit * 1000) / 1000} ${
-            type[selectedIndexType]
-          }`}</Text>
+            }}>{`${Math.pow(10, debit).toExponential(2)} mbar`}</Text>
+          <Text
+            style={{
+              fontSize: 50,
+              alignSelf: 'auto',
+              //   marginTop:20
+            }}>{`Ie = ${Math.round(debitIncertitude * 10) / 10} %`}</Text>
           <Text
             style={{
               fontSize: 30,
-              marginTop: 20,
+              marginTop: 50,
+              marginBottom: 100,
             }}>
-              {`${Math.round(value * 1000) / 1000} V`}
-              </Text>
+            {`${Math.round(value * 1000) / 1000} V`}
+          </Text>
         </View>
         <View style={{flex: 2, marginTop: 50, margin: 10}}>
           <Divider style={{backgroundColor: 'blue', marginVertical: 10}} />
@@ -174,16 +200,22 @@ const App = () => {
               justifyContent: 'center',
               alignItems: 'center',
             }}>
+            {console.log(dataCapteurs[selectedIndexCapteur].length)}
             <Input
               containerStyle={{flex: 3}}
-              style={{fontSize:25,marginLeft:10}}
+              style={{fontSize: 25, marginLeft: 10}}
               placeholder="Saisir Tension"
               leftIcon={{type: 'font-awesome', name: 'tachometer', size: 40}}
               onChangeText={value => handleInput(value)}
               value={valueString}
               errorStyle={{color: 'red'}}
               errorMessage={
-                value!=0 && (value > dataCapteurs[selectedIndexCapteur][5][0] || value < dataCapteurs[selectedIndexCapteur][0][0])
+                value != 0 &&
+                (value >
+                  dataCapteurs[selectedIndexCapteur][
+                    dataCapteurs[selectedIndexCapteur].length - 1
+                  ][0] ||
+                  value < dataCapteurs[selectedIndexCapteur][0][0])
                   ? "VALEUR EN DEHORS DE LA PLAGE D'ETALONNAGE"
                   : null
               }
@@ -217,7 +249,11 @@ const App = () => {
               value={value}
               thumbStyle={{height: 30, width: 20, backgroundColor: '#4287f5'}}
               onValueChange={value1 => setValue(value1)}
-              maximumValue={dataCapteurs[selectedIndexCapteur][5][0]}
+              maximumValue={
+                dataCapteurs[selectedIndexCapteur][
+                  dataCapteurs[selectedIndexCapteur].length - 1
+                ][0]
+              }
               minimumValue={dataCapteurs[selectedIndexCapteur][0][0]}
               step={0.001}
             />
